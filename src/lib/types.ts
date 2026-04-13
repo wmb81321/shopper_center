@@ -47,6 +47,11 @@ export interface Database {
 
 export type ProductSource = "manual" | "dropi";
 
+export interface ProductSize {
+  size: string;
+  stock: number;
+}
+
 export interface Product {
   id: string;
   dropi_product_id: number | null;
@@ -75,6 +80,7 @@ export interface Product {
   promo_active?: boolean | null;
   features?: string[] | null;
   size_info?: string | null;
+  sizes?: ProductSize[] | null;
   created_at: string;
   updated_at: string;
 }
