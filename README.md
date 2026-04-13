@@ -27,7 +27,7 @@ Panel de administración para la campaña de ventas WhatsApp + Meta Ads de Ekino
 
 Google OAuth via Supabase Auth. Solo cuentas autorizadas tienen acceso.
 
-El middleware en `src/middleware.ts` protege todas las rutas del panel. Flujo:
+El proxy en `src/proxy.ts` protege todas las rutas del panel (Next.js 16 renombró `middleware.ts` → `proxy.ts`). Flujo:
 
 1. Usuario no autenticado → redirige a `/login`
 2. Login con Google → callback en `/auth/callback` → intercambia code por sesión
