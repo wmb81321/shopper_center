@@ -92,7 +92,7 @@ export function BenefitsEditor({ benefit }: { benefit: Benefit }) {
         <div className="p-4 space-y-4">
           {editing ? (
             <>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label className="text-xs">Tipo de pago</Label>
                   <Input
@@ -154,7 +154,7 @@ export function BenefitsEditor({ benefit }: { benefit: Benefit }) {
               </div>
             </>
           ) : (
-            <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
               <div>
                 <dt className="text-xs text-muted-foreground">Tipo de pago</dt>
                 <dd className="font-medium mt-0.5">{benefit.payment_type}</dd>

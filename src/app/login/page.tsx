@@ -54,7 +54,7 @@ export default function LoginPage() {
         <Card>
           <CardHeader className="pb-4">
             <CardTitle className="text-lg">Iniciar sesión</CardTitle>
-            <CardDescription>Acceso exclusivo para el equipo de Ekinoxis</CardDescription>
+            <CardDescription>Acceso exclusivo para el equipo de Shopper</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {error && (

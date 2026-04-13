@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const COLORS = {
   bg: "#0a0f1a",
@@ -441,7 +441,15 @@ function StageCard({ stage, isActive, onClick }: { stage: Stage; isActive: boole
 export function PlaybookVentas() {
   const [activeStage, setActiveStage] = useState("bienvenida");
   const [activeTab, setActiveTab] = useState("funnel");
+  const [isMobile, setIsMobile] = useState(false);
   const current = funnelStages.find((s) => s.id === activeStage)!;
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   return (
     <div style={{ background: COLORS.bg, minHeight: "100%", color: COLORS.text, fontFamily: "'SF Pro Display', -apple-system, 'Segoe UI', sans-serif" }}>
@@ -492,20 +500,54 @@ export function PlaybookVentas() {
       {/* Content */}
       <div style={{ maxWidth: "900px", margin: "0 auto", padding: "20px 16px" }}>
         {activeTab === "funnel" && (
-          <div style={{ display: "grid", gridTemplateColumns: "220px 1fr", gap: "20px" }}>
-            {/* Sidebar - Stages */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <div style={{ fontSize: "11px", fontWeight: 700, color: COLORS.textMuted, letterSpacing: "1.5px", marginBottom: "4px", paddingLeft: "4px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "220px 1fr", gap: "20px" }}>
+            {/* Stages — sidebar on desktop, horizontal scroll on mobile */}
+            <div>
+              <div style={{ fontSize: "11px", fontWeight: 700, color: COLORS.textMuted, letterSpacing: "1.5px", marginBottom: "8px", paddingLeft: "4px" }}>
                 ETAPAS DEL FUNNEL
               </div>
-              {funnelStages.map((stage) => (
-                <StageCard
-                  key={stage.id}
-                  stage={stage}
-                  isActive={activeStage === stage.id}
-                  onClick={() => setActiveStage(stage.id)}
-                />
-              ))}
+              {isMobile ? (
+                <div style={{ display: "flex", gap: "8px", overflowX: "auto", paddingBottom: "4px", WebkitOverflowScrolling: "touch" as never }}>
+                  {funnelStages.map((stage) => {
+                    const isActive = activeStage === stage.id;
+                    return (
+                      <button
+                        key={stage.id}
+                        onClick={() => setActiveStage(stage.id)}
+                        style={{
+                          flexShrink: 0,
+                          background: isActive ? stage.color + "18" : COLORS.card,
+                          border: `1.5px solid ${isActive ? stage.color : COLORS.border}`,
+                          borderRadius: "8px",
+                          padding: "8px 12px",
+                          cursor: "pointer",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          gap: "4px",
+                          minWidth: "80px",
+                        }}
+                      >
+                        <span style={{ fontSize: "20px" }}>{stage.emoji}</span>
+                        <span style={{ fontSize: "10px", fontWeight: 700, color: isActive ? stage.color : COLORS.textMuted, letterSpacing: "0.5px", whiteSpace: "nowrap" }}>
+                          {stage.title.split(" ")[0]}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                  {funnelStages.map((stage) => (
+                    <StageCard
+                      key={stage.id}
+                      stage={stage}
+                      isActive={activeStage === stage.id}
+                      onClick={() => setActiveStage(stage.id)}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Main Content - Scripts */}
@@ -574,7 +616,7 @@ export function PlaybookVentas() {
         {activeTab === "metricas" && (
           <div>
             <h2 style={{ fontSize: "18px", fontWeight: 700, color: COLORS.accent, marginBottom: "20px" }}>📈 Métricas y Objetivos</h2>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "24px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "12px", marginBottom: "24px" }}>
               {metrics.map((m, i) => (
                 <div key={i} style={{ background: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: "10px", padding: "20px", textAlign: "center" }}>
                   <div style={{ fontSize: "28px", fontWeight: 800, color: m.color, marginBottom: "6px" }}>{m.value}</div>
@@ -600,7 +642,7 @@ export function PlaybookVentas() {
 
             <div style={{ marginTop: "16px", background: COLORS.card, border: `1px solid ${COLORS.border}`, borderRadius: "10px", padding: "20px" }}>
               <h3 style={{ margin: "0 0 12px", fontSize: "15px", color: COLORS.text }}>💰 Proyección con 10 Leads/Día</h3>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px", marginTop: "12px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: "16px", marginTop: "12px" }}>
                 {[
                   { label: "Conversión 15%", ventas: "1.5/día", revenue: "$134,850/día", color: COLORS.textMuted },
                   { label: "Conversión 25%", ventas: "2.5/día", revenue: "$224,750/día", color: COLORS.accent },

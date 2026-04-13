@@ -13,7 +13,7 @@ export default async function BenefitsPage() {
   const benefit = raw as unknown as Benefit | null;
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 md:p-6 space-y-4 md:space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Beneficios</h1>
         <p className="text-sm text-muted-foreground">Condiciones de entrega y datos del Mundial</p>

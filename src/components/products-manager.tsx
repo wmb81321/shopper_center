@@ -94,6 +94,7 @@ export function ProductsManager({ products }: { products: Product[] }) {
 
   return (
     <>
+      <div className="overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
@@ -209,6 +210,7 @@ export function ProductsManager({ products }: { products: Product[] }) {
         </TableBody>
       </Table>
 
+      </div>
       {/* Edit Price Sheet */}
       <Sheet open={!!editing} onOpenChange={() => setEditing(null)}>
         <SheetContent className="sm:max-w-sm">
