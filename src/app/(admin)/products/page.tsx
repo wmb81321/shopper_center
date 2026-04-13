@@ -9,32 +9,30 @@ export default async function ProductsPage() {
   const { data: raw } = await supabase
     .from("products")
     .select("*")
+    .order("source")
     .order("name");
   const products = (raw ?? []) as unknown as Product[];
 
+  const active = products.filter((p) => p.is_active).length;
+  const manual = products.filter((p) => p.source === "manual").length;
+
   return (
     <div className="p-4 md:p-6 space-y-4 md:space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
           <h1 className="text-2xl font-bold">Productos</h1>
           <p className="text-sm text-muted-foreground">Catálogo activo para el agente AI</p>
         </div>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Badge variant="default" className="text-xs">
-            {products?.filter((p) => p.active).length ?? 0} activos
-          </Badge>
-          <Badge variant="secondary" className="text-xs">
-            {products?.filter((p) => !p.active).length ?? 0} inactivos
-          </Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant="default" className="text-xs">{active} activos</Badge>
+          <Badge variant="outline" className="text-xs">{manual} manuales</Badge>
+          <Badge variant="secondary" className="text-xs">{products.length - manual} Dropi</Badge>
         </div>
       </div>
 
       <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">{products?.length ?? 0} productos en catálogo</CardTitle>
-        </CardHeader>
         <CardContent className="p-0">
-          <ProductsManager products={products ?? []} />
+          <ProductsManager products={products} />
         </CardContent>
       </Card>
     </div>

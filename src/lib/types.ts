@@ -45,16 +45,36 @@ export interface Database {
   };
 }
 
+export type ProductSource = "manual" | "dropi";
+
 export interface Product {
   id: string;
-  dropi_product_id: string;
+  dropi_product_id: number | null;
   name: string;
-  description?: string;
+  short_description?: string | null;
+  description?: string | null;
+  category?: string | null;
   base_price: number;
-  suggested_price?: number;
+  suggested_price?: number | null;
   sale_price: number;
-  active: boolean;
-  variants?: ProductVariant[];
+  images?: string[] | null;
+  variants?: ProductVariant[] | null;
+  dropi_stock?: number | null;
+  weight?: number | null;
+  ai_selling_points?: string | null;
+  ai_objection_handling?: string | null;
+  ai_keywords?: string[] | null;
+  is_active: boolean;
+  source: ProductSource;
+  // campaign fields
+  product_type?: string | null;
+  combo_type?: string | null;
+  combo_items?: string[] | null;
+  price_regular?: number | null;
+  price_promo?: number | null;
+  promo_active?: boolean | null;
+  features?: string[] | null;
+  size_info?: string | null;
   created_at: string;
   updated_at: string;
 }
