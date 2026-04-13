@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo, useTransition } from "react";
 import { Button } from "@/components/ui/button";
+import { setPlaybookProduct } from "@/app/(admin)/playbook/actions";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -555,21 +556,23 @@ function ScriptCard({
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export function PlaybookVentas({ products }: { products: Product[] }) {
+export function PlaybookVentas({
+  products,
+  initialProductId,
+}: {
+  products: Product[];
+  initialProductId: string;
+}) {
   const [activeStage, setActiveStage] = useState("bienvenida");
   const [activeTab, setActiveTab] = useState("funnel");
-  const [selectedId, setSelectedId] = useState<string>(products[0]?.id ?? "");
+  const [selectedId, setSelectedId] = useState<string>(initialProductId);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    const saved = localStorage.getItem("playbook.selectedProductId");
-    if (saved && products.find((p) => p.id === saved)) setSelectedId(saved);
-  }, [products]);
+  const [, startTransition] = useTransition();
 
   function handleProductChange(id: string | null) {
     if (!id) return;
     setSelectedId(id);
-    localStorage.setItem("playbook.selectedProductId", id);
+    startTransition(() => { void setPlaybookProduct(id); });
   }
 
   function handleDraftChange(key: string, value: string | null) {
