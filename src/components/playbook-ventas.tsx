@@ -2,18 +2,19 @@
 
 import { useState, useMemo, useTransition } from "react";
 import { Button } from "@/components/ui/button";
-import { setPlaybookProduct } from "@/app/(admin)/playbook/actions";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
+import { setPlaybookProduct } from "@/app/(admin)/playbook/actions";
 import type { Product } from "@/lib/types";
 
-// ─── Accent colors ────────────────────────────────────────────────────────────
+// ─── Stage accent colors ───────────────────────────────────────────────────────
 const SC = {
   whatsapp: "#25D366",
   blue: "#3b82f6",
@@ -35,7 +36,6 @@ interface Stage {
 
 const numFmt = new Intl.NumberFormat("es-CO", { maximumFractionDigits: 0 });
 const cop = (n?: number | null) => (n == null ? "" : numFmt.format(n));
-// copStr includes the $ sign so script tokens write {{precio}} not ${{precio}}
 const copStr = (n?: number | null) => (n == null ? "" : "$" + numFmt.format(n));
 
 function buildTokens(p: Product | null, products: Product[]): Record<string, string> {
@@ -81,23 +81,18 @@ function resolveTemplate(tpl: string, tokens: Record<string, string>): string {
 }
 
 // ─── Script data ──────────────────────────────────────────────────────────────
-// Price tokens ({{precio}}, {{precio_regular}}, {{ahorro}}) include the "$" sign.
-// Manual tokens that reps fill: {{pedidos_semana}}, {{talla_elegida}}, {{ciudad}}
 
-const lines = (...rows: string[]) => rows.join("\n");
+const L = (...rows: string[]) => rows.join("\n");
 
 const funnelStages: Stage[] = [
   {
-    id: "bienvenida",
-    emoji: "👋",
-    title: "BIENVENIDA",
-    subtitle: "0-2 min despues del mensaje",
-    color: SC.whatsapp,
+    id: "bienvenida", emoji: "👋", title: "Bienvenida",
+    subtitle: "0-2 min despues del mensaje", color: SC.whatsapp,
     goal: "Enganchar + identificar que producto quiere",
     scripts: [
       {
-        label: "Respuesta inicial (cuando preguntan por un producto)",
-        text: lines(
+        label: "Respuesta inicial",
+        text: L(
           "Hola! 👋 Gracias por escribirnos 🇨🇴",
           "",
           "Que bueno que te interesa! Tenemos disponibilidad todavia pero se estan agotando rapido 🔥",
@@ -108,7 +103,7 @@ const funnelStages: Stage[] = [
       },
       {
         label: "Si llegan con un producto especifico",
-        text: lines(
+        text: L(
           "Hola! 👋 Excelente eleccion 🔥",
           "",
           "Ese {{product}} esta volando, quedan pocas unidades.",
@@ -125,16 +120,13 @@ const funnelStages: Stage[] = [
     ],
   },
   {
-    id: "interes",
-    emoji: "🎯",
-    title: "CAPTURA DE INTERES",
-    subtitle: "Despues de que responden",
-    color: SC.blue,
+    id: "interes", emoji: "🎯", title: "Captura de Interes",
+    subtitle: "Despues de que responden", color: SC.blue,
     goal: "Confirmar producto + generar urgencia",
     scripts: [
       {
-        label: "Cuando dicen 'si me interesa' o preguntan mas",
-        text: lines(
+        label: "Cuando dicen 'si me interesa'",
+        text: L(
           "Dale! Te cuento por que este {{product}} es diferente:",
           "",
           "🏆 Es la camiseta/body oficial del Mundial 2026",
@@ -150,7 +142,7 @@ const funnelStages: Stage[] = [
       },
       {
         label: "Cuando preguntan por tallas",
-        text: lines(
+        text: L(
           "Buena pregunta!",
           "",
           "👕 {{product}}: Tenemos {{tallas}}",
@@ -161,16 +153,13 @@ const funnelStages: Stage[] = [
     ],
   },
   {
-    id: "cierre",
-    emoji: "🔥",
-    title: "CIERRE — PEDIR DATOS",
-    subtitle: "El momento clave",
-    color: SC.amber,
+    id: "cierre", emoji: "🔥", title: "Cierre — Pedir Datos",
+    subtitle: "El momento clave", color: SC.amber,
     goal: "Obtener los 5 datos para crear la orden",
     scripts: [
       {
-        label: "⭐ Script de cierre directo (EL MAS IMPORTANTE)",
-        text: lines(
+        label: "⭐ Cierre directo (EL MAS IMPORTANTE)",
+        text: L(
           "Perfecto! Te lo aparto ya mismo ✅",
           "",
           "Para enviartelo solo necesito estos datos (copiame y llena):",
@@ -185,8 +174,8 @@ const funnelStages: Stage[] = [
         ),
       },
       {
-        label: "Cierre para combos (especificar productos)",
-        text: lines(
+        label: "Cierre para combos",
+        text: L(
           "Excelente! El {{combo}} es la mejor opcion 💪",
           "",
           "Para armarte el pedido necesito:",
@@ -202,8 +191,8 @@ const funnelStages: Stage[] = [
         ),
       },
       {
-        label: "Cierre asumido (si ya mostraron interes claro)",
-        text: lines(
+        label: "Cierre asumido",
+        text: L(
           "Ya te lo tengo apartado 🔒",
           "",
           "Solo pasame tus datos para generar la guia de envio:",
@@ -220,16 +209,13 @@ const funnelStages: Stage[] = [
     ],
   },
   {
-    id: "objeciones",
-    emoji: "🛡️",
-    title: "MANEJO DE OBJECIONES",
-    subtitle: "Cuando dudan o no responden",
-    color: SC.purple,
+    id: "objeciones", emoji: "🛡️", title: "Manejo de Objeciones",
+    subtitle: "Cuando dudan o no responden", color: SC.purple,
     goal: "Resolver dudas y recuperar el interes",
     scripts: [
       {
         label: '"Es muy caro" / "No tengo plata"',
-        text: lines(
+        text: L(
           "Entiendo 💛 Pero mira esto:",
           "",
           "La camiseta original en tienda esta a $350.000+",
@@ -242,7 +228,7 @@ const funnelStages: Stage[] = [
       },
       {
         label: '"Es original?" / "Es confiable?"',
-        text: lines(
+        text: L(
           "Claro! Te cuento:",
           "",
           "✅ Producto con tecnologia AEROREADY",
@@ -256,7 +242,7 @@ const funnelStages: Stage[] = [
       },
       {
         label: '"Dejame pensarlo" / "Luego te escribo"',
-        text: lines(
+        text: L(
           "Dale! Sin presion 🙌",
           "",
           "Solo te aviso que quedan pocas unidades al precio promo de {{precio}} y cuando se acaben vuelven al precio regular de {{precio_regular}}.",
@@ -266,7 +252,7 @@ const funnelStages: Stage[] = [
       },
       {
         label: '"Hay descuento?" / "Me haces rebaja?"',
-        text: lines(
+        text: L(
           "El precio ya tiene descuento de Mundial 🏆",
           "",
           "Mira: el precio regular es {{precio_regular}} y lo tenemos a {{precio}} — eso ya es un ahorro de {{ahorro}} 🔥",
@@ -278,7 +264,7 @@ const funnelStages: Stage[] = [
       },
       {
         label: '"Puedo ver fotos?" / "Como es?"',
-        text: lines(
+        text: L(
           "Claro! Mira 👇",
           "",
           "[📸 Enviar fotos del producto aqui]",
@@ -291,16 +277,13 @@ const funnelStages: Stage[] = [
     ],
   },
   {
-    id: "followup",
-    emoji: "📲",
-    title: "FOLLOW-UP",
-    subtitle: "Si no responden",
-    color: SC.red,
+    id: "followup", emoji: "📲", title: "Follow-Up",
+    subtitle: "Si no responden", color: SC.red,
     goal: "Recuperar leads frios sin ser invasivo",
     scripts: [
       {
         label: "Follow-up #1 — 2 horas despues",
-        text: lines(
+        text: L(
           "Hey! 👋 Vi que estabas interesado/a en el {{product}}.",
           "",
           "Todavia lo tengo disponible al precio promo de {{precio}} 🔥",
@@ -310,7 +293,7 @@ const funnelStages: Stage[] = [
       },
       {
         label: "Follow-up #2 — Al dia siguiente",
-        text: lines(
+        text: L(
           "Hola de nuevo! 🇨🇴",
           "",
           "Solo queria avisarte que el {{product}} se esta agotando — hoy ya van {{pedidos_semana}} pedidos.",
@@ -322,7 +305,7 @@ const funnelStages: Stage[] = [
       },
       {
         label: "Follow-up #3 — 2 dias despues (ultimo)",
-        text: lines(
+        text: L(
           "👋 Ultimo aviso:",
           "",
           "El precio promo de {{precio}} del {{product}} se acaba esta semana.",
@@ -335,16 +318,13 @@ const funnelStages: Stage[] = [
     ],
   },
   {
-    id: "confirmacion",
-    emoji: "✅",
-    title: "CONFIRMACION DE ORDEN",
-    subtitle: "Cuando dan los datos",
-    color: SC.green,
+    id: "confirmacion", emoji: "✅", title: "Confirmacion de Orden",
+    subtitle: "Cuando dan los datos", color: SC.green,
     goal: "Confirmar, generar confianza y upsell",
     scripts: [
       {
         label: "Confirmacion de pedido",
-        text: lines(
+        text: L(
           "🎉 PEDIDO CONFIRMADO!",
           "",
           "Aqui tu resumen:",
@@ -362,8 +342,8 @@ const funnelStages: Stage[] = [
         ),
       },
       {
-        label: "Upsell despues de confirmar (opcional)",
-        text: lines(
+        label: "Upsell despues de confirmar",
+        text: L(
           "Ya quedo tu pedido! 🎉",
           "",
           "Oye, y como ya te hacemos el envio... no quieres agregar otro para alguien?",
@@ -380,25 +360,17 @@ const funnelStages: Stage[] = [
 
 const quickRules = [
   { icon: "⚡", title: "Responde en menos de 2 min", desc: "Cada minuto que pasa, la probabilidad de cierre baja un 10%. El lead esta caliente AHORA." },
-  { icon: "🎯", title: "Siempre cierra pidiendo datos", desc: 'Nunca termines un mensaje sin una pregunta o un call to action. Nunca digas "cualquier cosa me escribes".' },
+  { icon: "🎯", title: "Siempre cierra pidiendo datos", desc: 'Nunca termines un mensaje sin una pregunta o call to action. Nunca digas "cualquier cosa me escribes".' },
   { icon: "🔒", title: 'Usa "te lo aparto"', desc: "Crea urgencia real. El cliente siente que puede perder la oportunidad. Funciona porque es verdad — se agotan." },
   { icon: "💳", title: "Repite CONTRAENTREGA", desc: 'Es tu arma mas poderosa. Elimina el miedo. Repitelo en cada mensaje clave: "pagas cuando te llega".' },
   { icon: "🚫", title: "No negocies precio", desc: "El precio YA tiene descuento. Muestra el ahorro vs precio regular. Si insisten, ofrece combo como alternativa." },
   { icon: "📋", title: "Copia y pega, no improvises", desc: "Los scripts estan disenados para convertir. Personaliza el nombre y producto, pero no cambies la estructura." },
 ];
 
-const metricsData = [
-  { label: "Tasa de respuesta objetivo", value: "< 2 min", color: SC.green },
-  { label: "Conversion objetivo", value: "20-30%", color: SC.amber },
-  { label: "Follow-ups maximos", value: "3 mensajes", color: SC.blue },
-  { label: "Datos necesarios para orden", value: "5 campos", color: SC.purple },
-];
-
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
-
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(text);
@@ -407,26 +379,22 @@ function CopyButton({ text }: { text: string }) {
       el.value = text;
       el.style.cssText = "position:fixed;opacity:0;";
       document.body.appendChild(el);
-      el.focus();
-      el.select();
+      el.focus(); el.select();
       document.execCommand("copy");
       document.body.removeChild(el);
     }
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
-
   return (
-    <button
+    <Button
+      size="sm"
+      variant={copied ? "default" : "outline"}
+      className="h-7 text-xs gap-1.5"
       onClick={handleCopy}
-      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-all border ${
-        copied
-          ? "bg-[#10b981] border-[#10b981] text-white"
-          : "bg-white/5 border-white/15 text-slate-400 hover:text-slate-200 hover:border-white/30"
-      }`}
     >
       {copied ? "✅ Copiado" : "📋 Copiar"}
-    </button>
+    </Button>
   );
 }
 
@@ -448,32 +416,19 @@ function ScriptCard({
   const displayText = draft ?? resolved;
   const hasEdit = draft != null;
 
-  function startEdit() {
-    setEditBuffer(displayText);
-    setEditing(true);
-  }
-
-  function saveEdit() {
-    onDraftChange(draftKey, editBuffer);
-    setEditing(false);
-  }
-
-  function resetDraft() {
-    onDraftChange(draftKey, null);
-    setEditing(false);
-  }
+  function startEdit() { setEditBuffer(displayText); setEditing(true); }
+  function saveEdit() { onDraftChange(draftKey, editBuffer); setEditing(false); }
+  function resetDraft() { onDraftChange(draftKey, null); setEditing(false); }
 
   return (
-    <div className="mb-2.5">
+    <div className="rounded-lg border bg-card overflow-hidden">
       <button
         onClick={() => { setOpen((o) => !o); if (open) setEditing(false); }}
-        className={`w-full text-left flex justify-between items-center px-4 py-3 text-sm font-medium text-slate-200 border border-white/10 transition-colors ${
-          open ? "bg-white/[0.06] rounded-t-lg" : "bg-white/[0.03] rounded-lg hover:bg-white/[0.05]"
-        }`}
+        className="w-full text-left flex justify-between items-center px-4 py-3 text-sm font-medium hover:bg-muted/50 transition-colors"
       >
-        <span className="pr-3">{script.label}</span>
+        <span className="pr-3 text-foreground">{script.label}</span>
         <span
-          className="text-lg opacity-50 shrink-0 transition-transform duration-200"
+          className="text-muted-foreground opacity-60 shrink-0 text-base transition-transform duration-200"
           style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)" }}
         >
           ▾
@@ -481,68 +436,42 @@ function ScriptCard({
       </button>
 
       {open && (
-        <div className="bg-black/30 border border-white/10 border-t-0 rounded-b-lg p-4 space-y-3">
+        <div className="border-t px-4 pb-4 pt-3 space-y-3 bg-muted/20">
           {editing ? (
             <>
               <Textarea
                 value={editBuffer}
                 onChange={(e) => setEditBuffer(e.target.value)}
                 rows={Math.max(6, displayText.split("\n").length + 1)}
-                className="text-[13px] leading-relaxed bg-black/20 border-white/20 text-slate-100 resize-none"
-                style={{ fontFamily: "'SF Pro Text', -apple-system, sans-serif" }}
+                className="text-[13px] leading-relaxed font-mono resize-none"
               />
-              <div className="flex items-center justify-between gap-2">
-                <button
-                  onClick={resetDraft}
-                  className="text-xs text-slate-500 hover:text-slate-300 underline underline-offset-2"
-                >
+              <div className="flex items-center justify-between">
+                <button onClick={resetDraft} className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2">
                   Restablecer original
                 </button>
                 <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-7 text-xs border-white/20 text-slate-300 hover:bg-white/10 hover:text-slate-100"
-                    onClick={() => setEditing(false)}
-                  >
-                    Cancelar
-                  </Button>
-                  <Button
-                    size="sm"
-                    className="h-7 text-xs"
-                    style={{ background: SC.whatsapp, border: "none" }}
-                    onClick={saveEdit}
-                  >
-                    Guardar
-                  </Button>
+                  <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setEditing(false)}>Cancelar</Button>
+                  <Button size="sm" className="h-7 text-xs" onClick={saveEdit}>Guardar</Button>
                 </div>
               </div>
             </>
           ) : (
             <>
               {hasEdit && (
-                <div className="flex items-center gap-2 text-[11px] text-amber-400">
+                <div className="flex items-center gap-2 text-[11px] text-amber-600 dark:text-amber-400">
                   <span>✏️ Editado manualmente</span>
-                  <button
-                    onClick={resetDraft}
-                    className="underline underline-offset-2 opacity-70 hover:opacity-100"
-                  >
-                    Restablecer
-                  </button>
+                  <button onClick={resetDraft} className="underline underline-offset-2 opacity-70 hover:opacity-100">Restablecer</button>
                 </div>
               )}
               <pre
-                className="whitespace-pre-wrap break-words text-[13.5px] leading-[1.7] text-slate-200 m-0 bg-[#25D366]/[0.05] p-4 rounded-md border-l-[3px] border-[#25D366]"
-                style={{ fontFamily: "'SF Pro Text', -apple-system, sans-serif" }}
+                className="whitespace-pre-wrap break-words text-[13px] leading-[1.75] text-foreground m-0 bg-background p-4 rounded-md border-l-[3px]"
+                style={{ borderLeftColor: SC.whatsapp, fontFamily: "'SF Pro Text', -apple-system, sans-serif" }}
               >
                 {displayText}
               </pre>
               <div className="flex items-center justify-between">
-                <button
-                  onClick={startEdit}
-                  className="text-xs text-slate-500 hover:text-slate-300 flex items-center gap-1 transition-colors"
-                >
-                  ✏️ Editar texto
+                <button onClick={startEdit} className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors">
+                  ✏️ Editar
                 </button>
                 <CopyButton text={displayText} />
               </div>
@@ -591,197 +520,164 @@ export function PlaybookVentas({
   const current = funnelStages.find((s) => s.id === activeStage)!;
 
   const displayPrice = selected
-    ? selected.promo_active && selected.price_promo
-      ? selected.price_promo : selected.sale_price
+    ? selected.promo_active && selected.price_promo ? selected.price_promo : selected.sale_price
     : null;
 
   return (
-    <div
-      className="bg-[#0a0f1a] min-h-full text-slate-100"
-      style={{ fontFamily: "'SF Pro Display', -apple-system, 'Segoe UI', sans-serif" }}
-    >
-      {/* Header */}
-      <div className="bg-gradient-to-br from-[#0a0f1a] via-[#1a1a2e] to-[#16213e] border-b border-[#1e293b] px-4 md:px-6 py-5">
-        <div className="max-w-3xl mx-auto flex items-center gap-3">
-          <span className="text-3xl">🇨🇴</span>
-          <div>
-            <h1
-              className="text-xl font-extrabold tracking-tight m-0"
-              style={{
-                background: "linear-gradient(135deg, #f59e0b, #fbbf24)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}
-            >
-              PLAYBOOK DE VENTAS
-            </h1>
-            <p className="text-xs text-slate-500 mt-0.5 m-0">
-              Shopper Center — Mundial 2026 ⚽
-            </p>
-          </div>
-        </div>
-      </div>
+    <div className="p-4 md:p-6 space-y-4 md:space-y-6">
 
-      {/* Product picker */}
-      <div className="border-b border-[#1e293b] bg-black/20 px-4 md:px-6 py-3">
-        <div className="max-w-3xl mx-auto flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-          <span className="text-xs font-semibold text-slate-400 shrink-0">Producto activo:</span>
-          <div className="flex items-center gap-3 flex-1 min-w-0">
-            <Select value={selectedId} onValueChange={handleProductChange}>
-              <SelectTrigger className="flex-1 max-w-xs bg-white/5 border-white/15 text-slate-100 h-8 text-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {products.length === 0
-                  ? <SelectItem value="_none">No hay productos activos</SelectItem>
-                  : products.map((p) => (
-                      <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                    ))
-                }
-              </SelectContent>
-            </Select>
-            {selected && displayPrice != null && (
-              <div className="flex items-center gap-2 shrink-0">
-                <span className="text-sm font-bold" style={{ color: SC.green }}>
-                  {copStr(displayPrice)}
+      {/* Page header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold">Playbook de Ventas</h1>
+          <p className="text-sm text-muted-foreground">Scripts de WhatsApp para el funnel Mundial 2026 ⚽</p>
+        </div>
+
+        {/* Product selector */}
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground shrink-0">Producto:</span>
+          <Select value={selectedId} onValueChange={handleProductChange}>
+            <SelectTrigger className="w-[220px] h-8 text-sm">
+              {/* Render name directly — base-ui SelectValue doesn't resolve ItemText */}
+              <span className="truncate text-left">
+                {selected?.name ?? "Selecciona un producto..."}
+              </span>
+            </SelectTrigger>
+            <SelectContent>
+              {products.length === 0
+                ? <SelectItem value="_none">No hay productos activos</SelectItem>
+                : products.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                  ))
+              }
+            </SelectContent>
+          </Select>
+          {selected && displayPrice != null && (
+            <Badge variant="secondary" className="text-xs shrink-0">
+              {copStr(displayPrice)}
+              {selected.promo_active && selected.price_promo && selected.price_regular && (
+                <span className="line-through text-muted-foreground ml-1.5">
+                  {copStr(selected.price_regular)}
                 </span>
-                {selected.promo_active && selected.price_promo && selected.price_regular && (
-                  <span className="text-xs text-slate-500 line-through hidden sm:inline">
-                    {copStr(selected.price_regular)}
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
+              )}
+            </Badge>
+          )}
         </div>
       </div>
 
       {/* Tab bar */}
-      <div className="border-b border-[#1e293b] bg-black/20">
-        <div className="max-w-3xl mx-auto flex overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {[
-            { id: "funnel", label: "📊 Funnel & Scripts" },
-            { id: "reglas", label: "⚡ Reglas de Oro" },
-            { id: "metricas", label: "📈 Metricas" },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`shrink-0 px-5 py-3.5 text-[13px] font-semibold border-b-2 transition-colors ${
-                activeTab === tab.id
-                  ? "border-[#f59e0b] text-[#f59e0b]"
-                  : "border-transparent text-slate-500 hover:text-slate-300"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+      <div className="border-b flex overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {[
+          { id: "funnel", label: "📊 Funnel & Scripts" },
+          { id: "reglas", label: "⚡ Reglas de Oro" },
+          { id: "metricas", label: "📈 Metricas" },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`shrink-0 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px ${
+              activeTab === tab.id
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
-      {/* Content */}
-      <div className="max-w-3xl mx-auto px-4 md:px-6 py-5">
+      {/* ── Funnel tab ── */}
+      {activeTab === "funnel" && (
+        <div className="grid gap-4 md:grid-cols-[220px_1fr]">
 
-        {/* Funnel tab */}
-        {activeTab === "funnel" && (
-          <div className="grid gap-5 md:grid-cols-[200px_1fr]">
-            <div>
-              <p className="text-[11px] font-bold text-slate-500 tracking-[1.5px] mb-2 pl-1 hidden md:block">
-                ETAPAS DEL FUNNEL
-              </p>
+          {/* Stage nav */}
+          <div className="space-y-1.5">
+            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-1 mb-2">
+              Etapas del funnel
+            </p>
 
-              {/* Mobile: sticky horizontal pills */}
-              <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:hidden sticky top-0 z-10 bg-[#0a0f1a] py-2">
-                {funnelStages.map((stage) => {
-                  const isActive = activeStage === stage.id;
-                  return (
-                    <button
-                      key={stage.id}
-                      onClick={() => setActiveStage(stage.id)}
-                      style={{
-                        borderColor: isActive ? stage.color : "rgba(255,255,255,0.12)",
-                        background: isActive ? stage.color + "20" : "rgba(255,255,255,0.03)",
-                      }}
-                      className="shrink-0 flex flex-col items-center gap-1 px-3 py-2 rounded-lg border min-w-[68px] transition-colors"
-                    >
-                      <span className="text-xl leading-none">{stage.emoji}</span>
-                      <span
-                        className="text-[9px] font-bold tracking-wide whitespace-nowrap uppercase"
-                        style={{ color: isActive ? stage.color : "#64748b" }}
-                      >
-                        {stage.title.split(" ")[0]}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Desktop: sidebar list */}
-              <div className="hidden md:flex flex-col gap-2">
-                {funnelStages.map((stage) => {
-                  const isActive = activeStage === stage.id;
-                  return (
-                    <button
-                      key={stage.id}
-                      onClick={() => setActiveStage(stage.id)}
-                      style={{
-                        background: isActive ? stage.color + "18" : "#111827",
-                        borderColor: isActive ? stage.color : "#1e293b",
-                      }}
-                      className="relative w-full text-left rounded-xl border px-4 py-3 transition-all overflow-hidden"
-                    >
-                      {isActive && (
-                        <div
-                          className="absolute left-0 top-0 bottom-0 w-[3px]"
-                          style={{ background: stage.color }}
-                        />
-                      )}
-                      <div className="flex items-center gap-2.5 mb-1">
-                        <span className="text-xl leading-none">{stage.emoji}</span>
-                        <span
-                          className="text-[12px] font-bold tracking-[0.8px]"
-                          style={{ color: isActive ? stage.color : "#f1f5f9" }}
-                        >
-                          {stage.title}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-slate-500 pl-[30px] m-0">{stage.subtitle}</p>
-                    </button>
-                  );
-                })}
-              </div>
+            {/* Mobile: horizontal pills */}
+            <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:hidden sticky top-0 z-10 bg-background py-1">
+              {funnelStages.map((stage) => {
+                const isActive = activeStage === stage.id;
+                return (
+                  <button
+                    key={stage.id}
+                    onClick={() => setActiveStage(stage.id)}
+                    className={`shrink-0 flex flex-col items-center gap-0.5 px-3 py-2 rounded-lg border text-xs font-semibold min-w-[64px] transition-colors ${
+                      isActive ? "border-border bg-muted" : "border-transparent text-muted-foreground hover:bg-muted/50"
+                    }`}
+                    style={isActive ? { borderColor: stage.color + "60", color: stage.color } : {}}
+                  >
+                    <span className="text-lg leading-none">{stage.emoji}</span>
+                    <span className="text-[9px] uppercase tracking-wide whitespace-nowrap">
+                      {stage.title.split(" ")[0]}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
 
-            {/* Scripts panel */}
-            <div className="min-w-0">
-              <div
-                className="rounded-xl border p-5 mb-4"
-                style={{ background: "#111827", borderColor: "#1e293b" }}
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-3xl leading-none">{current.emoji}</span>
-                  <div>
-                    <h2 className="text-lg font-bold m-0" style={{ color: current.color }}>
-                      {current.title}
-                    </h2>
-                    <p className="text-xs text-slate-500 mt-0.5 m-0">{current.subtitle}</p>
+            {/* Desktop: vertical list */}
+            <div className="hidden md:flex flex-col gap-1">
+              {funnelStages.map((stage) => {
+                const isActive = activeStage === stage.id;
+                return (
+                  <button
+                    key={stage.id}
+                    onClick={() => setActiveStage(stage.id)}
+                    className={`relative w-full text-left rounded-lg px-3 py-2.5 transition-colors overflow-hidden ${
+                      isActive ? "bg-muted" : "hover:bg-muted/50"
+                    }`}
+                  >
+                    {isActive && (
+                      <div
+                        className="absolute left-0 top-0 bottom-0 w-[3px] rounded-l-lg"
+                        style={{ background: stage.color }}
+                      />
+                    )}
+                    <div className="flex items-center gap-2 pl-1">
+                      <span className="text-base leading-none">{stage.emoji}</span>
+                      <div>
+                        <p
+                          className="text-xs font-semibold leading-tight"
+                          style={{ color: isActive ? stage.color : undefined }}
+                        >
+                          {stage.title}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">{stage.subtitle}</p>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Scripts panel */}
+          <div className="space-y-4 min-w-0">
+            {/* Stage header */}
+            <Card>
+              <CardContent className="pt-4 pb-3 px-4">
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl leading-none mt-0.5">{current.emoji}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h2 className="text-base font-bold" style={{ color: current.color }}>
+                        {current.title}
+                      </h2>
+                      <Badge variant="outline" className="text-[10px]">{current.subtitle}</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      <span className="font-semibold">Objetivo:</span> {current.goal}
+                    </p>
                   </div>
                 </div>
-                <div
-                  className="mt-3 px-3 py-2 rounded-lg border text-[13px]"
-                  style={{ background: current.color + "12", borderColor: current.color + "30" }}
-                >
-                  <span className="text-[11px] font-bold tracking-[0.5px]" style={{ color: current.color }}>
-                    🎯 OBJETIVO:
-                  </span>{" "}
-                  <span className="text-slate-200">{current.goal}</span>
-                </div>
-              </div>
+              </CardContent>
+            </Card>
 
-              <p className="text-[11px] font-bold text-slate-500 tracking-[1.5px] mb-3">
-                SCRIPTS — Click para expandir y copiar
-              </p>
-
+            {/* Scripts */}
+            <div className="space-y-2">
               {current.scripts.map((script, i) => (
                 <ScriptCard
                   key={`${current.id}-${i}`}
@@ -794,116 +690,117 @@ export function PlaybookVentas({
               ))}
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Reglas tab */}
-        {activeTab === "reglas" && (
-          <div>
-            <h2 className="text-lg font-bold mb-5" style={{ color: SC.amber }}>
-              ⚡ 6 Reglas de Oro para Cerrar por WhatsApp
-            </h2>
-            <div className="grid gap-3">
-              {quickRules.map((rule, i) => (
-                <div
-                  key={i}
-                  className="flex gap-4 items-start rounded-xl border px-5 py-4"
-                  style={{ background: "#111827", borderColor: "#1e293b" }}
-                >
-                  <span className="text-3xl leading-none shrink-0 mt-0.5">{rule.icon}</span>
-                  <div>
-                    <p className="text-sm font-bold text-slate-200 mb-1 m-0">{rule.title}</p>
-                    <p className="text-[13px] text-slate-400 leading-relaxed m-0">{rule.desc}</p>
-                  </div>
+      {/* ── Reglas tab ── */}
+      {activeTab === "reglas" && (
+        <div className="space-y-3 max-w-2xl">
+          {quickRules.map((rule, i) => (
+            <Card key={i}>
+              <CardContent className="flex gap-4 items-start p-4">
+                <span className="text-2xl leading-none shrink-0 mt-0.5">{rule.icon}</span>
+                <div>
+                  <p className="text-sm font-semibold mb-0.5">{rule.title}</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{rule.desc}</p>
                 </div>
-              ))}
-            </div>
-            <div
-              className="mt-6 rounded-xl border p-5"
-              style={{ background: SC.amber + "10", borderColor: SC.amber + "30" }}
-            >
-              <h3 className="text-[15px] font-semibold mb-3" style={{ color: SC.amber }}>
-                🔄 Flujo de Respuesta Rapida
-              </h3>
-              <div className="text-[13px] text-slate-400 leading-[1.9]">
-                <strong className="text-slate-200">Lead escribe →</strong> Responder menos de 2 min con bienvenida<br />
-                <strong className="text-slate-200">Muestra interes →</strong> Dar info del producto + beneficios<br />
-                <strong className="text-slate-200">Hace preguntas →</strong> Responder + SIEMPRE cerrar pidiendo datos<br />
-                <strong className="text-slate-200">Da los datos →</strong> Confirmar orden + intentar upsell combo<br />
-                <strong className="text-slate-200">No responde →</strong> Follow-up #1 (2h) → #2 (24h) → #3 (48h)<br />
-                <strong className="text-slate-200">Dice no →</strong> Agradecer + dejar puerta abierta
-              </div>
-            </div>
-          </div>
-        )}
+              </CardContent>
+            </Card>
+          ))}
 
-        {/* Metricas tab */}
-        {activeTab === "metricas" && (
-          <div>
-            <h2 className="text-lg font-bold mb-5" style={{ color: SC.amber }}>
-              📈 Metricas y Objetivos
-            </h2>
-            <div className="grid grid-cols-2 gap-3 mb-5">
-              {metricsData.map((m, i) => (
-                <div
-                  key={i}
-                  className="rounded-xl border p-5 text-center"
-                  style={{ background: "#111827", borderColor: "#1e293b" }}
-                >
-                  <div className="text-2xl font-extrabold mb-1" style={{ color: m.color }}>{m.value}</div>
-                  <div className="text-xs text-slate-500">{m.label}</div>
-                </div>
-              ))}
-            </div>
-
-            <div
-              className="rounded-xl border p-5 mb-4"
-              style={{ background: "#111827", borderColor: "#1e293b" }}
-            >
-              <h3 className="text-[15px] font-semibold text-slate-200 mb-4">
-                📊 Como Medir tu Rendimiento
-              </h3>
-              <div className="text-[13px] text-slate-400 leading-[1.9]">
-                <strong style={{ color: SC.green }}>Lleva un conteo diario simple:</strong>
-                <br /><br />
-                • <strong className="text-slate-200">Leads que llegan:</strong> Cada mensaje nuevo de WhatsApp<br />
-                • <strong className="text-slate-200">Leads que responden:</strong> Los que contestan despues de tu bienvenida<br />
-                • <strong className="text-slate-200">Datos recibidos:</strong> Los que te pasan nombre, ciudad, direccion<br />
-                • <strong className="text-slate-200">Ordenes confirmadas:</strong> Pedidos creados en Dropi<br />
-                • <strong className="text-slate-200">Ventas entregadas:</strong> Pedidos que se entregaron con exito<br /><br />
-                <strong style={{ color: SC.amber }}>Formula de conversion:</strong>{" "}
-                (Ordenes confirmadas / Leads que llegan) x 100<br /><br />
-                <strong className="text-slate-200">Ejemplo:</strong> Si llegan 10 leads y cierras 2 = 20% conversion ✅<br />
-                <strong className="text-slate-200">Meta:</strong> Con estos scripts deberian llegar a 25-30% 🎯
-              </div>
-            </div>
-
-            <div
-              className="rounded-xl border p-5"
-              style={{ background: "#111827", borderColor: "#1e293b" }}
-            >
-              <h3 className="text-[15px] font-semibold text-slate-200 mb-3">
-                💰 Proyeccion con 10 Leads/Dia
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
+          <Card className="border-amber-200 dark:border-amber-800">
+            <CardHeader className="pb-2 pt-4 px-4">
+              <CardTitle className="text-sm">🔄 Flujo de Respuesta Rapida</CardTitle>
+            </CardHeader>
+            <CardContent className="px-4 pb-4">
+              <div className="text-xs text-muted-foreground leading-[2] space-y-0.5">
                 {[
-                  { label: "Conversion 15%", ventas: "1.5/dia", revenue: "$134.850/dia", color: "#94a3b8" },
-                  { label: "Conversion 25%", ventas: "2.5/dia", revenue: "$224.750/dia", color: SC.amber },
-                  { label: "Conversion 35%", ventas: "3.5/dia", revenue: "$314.650/dia", color: SC.green },
-                ].map((p, i) => (
-                  <div key={i} className="text-center p-3 rounded-lg bg-black/20">
-                    <div className="text-[11px] font-bold mb-1.5" style={{ color: p.color }}>{p.label}</div>
-                    <div className="text-lg font-extrabold text-slate-200">{p.ventas}</div>
-                    <div className="text-xs text-slate-500 mt-0.5">~{p.revenue}</div>
+                  ["Lead escribe", "Responder menos de 2 min con bienvenida"],
+                  ["Muestra interes", "Dar info del producto + beneficios"],
+                  ["Hace preguntas", "Responder + SIEMPRE cerrar pidiendo datos"],
+                  ["Da los datos", "Confirmar orden + intentar upsell combo"],
+                  ["No responde", "Follow-up #1 (2h) → #2 (24h) → #3 (48h)"],
+                  ["Dice no", "Agradecer + dejar puerta abierta"],
+                ].map(([trigger, action]) => (
+                  <div key={trigger} className="flex gap-2">
+                    <span className="font-semibold text-foreground shrink-0 w-32">{trigger} →</span>
+                    <span>{action}</span>
                   </div>
                 ))}
               </div>
-              <p className="text-[11px] text-slate-600 mt-3 text-center m-0">
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* ── Metricas tab ── */}
+      {activeTab === "metricas" && (
+        <div className="space-y-4 max-w-2xl">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              { label: "Respuesta objetivo", value: "< 2 min", color: SC.green },
+              { label: "Conversion objetivo", value: "20-30%", color: SC.amber },
+              { label: "Follow-ups maximos", value: "3", color: SC.blue },
+              { label: "Datos para orden", value: "5 campos", color: SC.purple },
+            ].map((m, i) => (
+              <Card key={i}>
+                <CardContent className="p-4 text-center">
+                  <div className="text-xl font-extrabold" style={{ color: m.color }}>{m.value}</div>
+                  <div className="text-[10px] text-muted-foreground mt-1 leading-tight">{m.label}</div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">📊 Como Medir tu Rendimiento</CardTitle>
+            </CardHeader>
+            <CardContent className="text-xs text-muted-foreground leading-[2] space-y-1">
+              {[
+                ["Leads que llegan", "Cada mensaje nuevo de WhatsApp"],
+                ["Leads que responden", "Los que contestan despues de tu bienvenida"],
+                ["Datos recibidos", "Los que te pasan nombre, ciudad, direccion"],
+                ["Ordenes confirmadas", "Pedidos creados en Dropi"],
+                ["Ventas entregadas", "Pedidos que se entregaron con exito"],
+              ].map(([k, v]) => (
+                <div key={k} className="flex gap-2">
+                  <span className="font-semibold text-foreground shrink-0">• {k}:</span>
+                  <span>{v}</span>
+                </div>
+              ))}
+              <p className="pt-2 text-foreground font-medium">
+                Formula: (Ordenes confirmadas / Leads) x 100 = % conversion
+              </p>
+              <p>Meta con estos scripts: 25-30% 🎯</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">💰 Proyeccion con 10 Leads/Dia</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {[
+                  { label: "Conversion 15%", ventas: "1.5/dia", revenue: "$134.850/dia", color: "text-muted-foreground" },
+                  { label: "Conversion 25%", ventas: "2.5/dia", revenue: "$224.750/dia", color: "text-amber-600" },
+                  { label: "Conversion 35%", ventas: "3.5/dia", revenue: "$314.650/dia", color: "text-green-600" },
+                ].map((p, i) => (
+                  <div key={i} className="text-center p-3 rounded-lg bg-muted/50">
+                    <div className={`text-[11px] font-bold mb-1 ${p.color}`}>{p.label}</div>
+                    <div className="text-lg font-extrabold">{p.ventas}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">~{p.revenue}</div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-3 text-center">
                 *Basado en ticket promedio de $89.900 (producto individual)
               </p>
-            </div>
-          </div>
-        )}
-      </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
