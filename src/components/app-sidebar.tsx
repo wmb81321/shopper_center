@@ -21,6 +21,10 @@ import {
   Package,
   Settings,
   LogOut,
+  Megaphone,
+  Target,
+  Gift,
+  BookOpen,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
@@ -30,6 +34,10 @@ const navItems = [
   { href: "/orders", label: "Órdenes", icon: ShoppingBag },
   { href: "/conversations", label: "Conversaciones", icon: MessageSquare },
   { href: "/products", label: "Productos", icon: Package },
+  { href: "/ads", label: "Anuncios", icon: Megaphone },
+  { href: "/segments", label: "Segmentación", icon: Target },
+  { href: "/benefits", label: "Beneficios", icon: Gift },
+  { href: "/playbook", label: "Playbook", icon: BookOpen },
   { href: "/config", label: "Configuración", icon: Settings },
 ];
 

@@ -128,3 +128,64 @@ export interface AgentConfig {
   value: string;
   description?: string;
 }
+
+export type AdStatus = "active" | "paused" | "draft";
+export type AdFormat = "video_reel" | "imagen_estatica" | "imagen_carrusel";
+
+export interface Ad {
+  id: string;
+  product_id: string;
+  ad_number: number;
+  format: AdFormat;
+  caption: string;
+  status: AdStatus;
+  created_at: string;
+  updated_at: string;
+  products?: CampaignProduct;
+}
+
+export interface Segment {
+  id: string;
+  product_id: string;
+  label: string;
+  age_min: number | null;
+  age_max: number | null;
+  gender: string | null;
+  relationship_status: string[] | null;
+  education: string[] | null;
+  occupations: string[] | null;
+  cities_tier1: string[] | null;
+  cities_tier2: string[] | null;
+  interests_layer1: string[] | null;
+  interests_layer2: string[] | null;
+  interests_layer3: string[] | null;
+  device: string | null;
+  android_models: string[] | null;
+  ios_models: string[] | null;
+  behaviors: string[] | null;
+  created_at: string;
+  products?: CampaignProduct;
+}
+
+export interface Benefit {
+  id: string;
+  payment_type: string;
+  delivery_cost: string;
+  coverage: string;
+  delivery_days: number;
+  required_fields: string[];
+  world_cup_start: string | null;
+  colombia_matches: { opponent: string; date: string }[] | null;
+  updated_at: string;
+}
+
+export interface CampaignProduct {
+  id: string;
+  name: string;
+  product_type: string | null;
+  combo_type: string | null;
+  price_regular: number | null;
+  price_promo: number | null;
+  promo_active: boolean | null;
+  is_active: boolean;
+}

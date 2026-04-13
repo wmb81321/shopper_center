@@ -24,10 +24,19 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useRouter } from "next/navigation";
 import type { Product } from "@/lib/types";
-import { Pencil, Power } from "lucide-react";
+import { Pencil, Power, Tag } from "lucide-react";
 
 const formatCOP = (amount: number) =>
   new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(amount);
+
+// Campaign product columns added via migration
+type ProductRow = Product & {
+  product_type?: string | null;
+  price_regular?: number | null;
+  price_promo?: number | null;
+  promo_active?: boolean | null;
+  is_active?: boolean;
+};
 
 export function ProductsManager({ products }: { products: Product[] }) {
   const [editing, setEditing] = useState<Product | null>(null);
@@ -35,6 +44,14 @@ export function ProductsManager({ products }: { products: Product[] }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const supabase = createClient();
+
+  async function togglePromo(product: ProductRow) {
+    await supabase
+      .from("products")
+      .update({ promo_active: !product.promo_active })
+      .eq("id", product.id);
+    router.refresh();
+  }
 
   function openEdit(product: Product) {
     setEditing(product);
@@ -91,14 +108,20 @@ export function ProductsManager({ products }: { products: Product[] }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {products.map((product) => {
+          {(products as ProductRow[]).map((product) => {
             const m = margin(product);
             const variantCount = Array.isArray(product.variants) ? product.variants.length : 0;
+            const hasCampaignPricing = product.price_regular != null && product.price_promo != null;
 
             return (
               <TableRow key={product.id} className={!product.active ? "opacity-50" : ""}>
                 <TableCell>
-                  <p className="text-sm font-medium max-w-[200px] leading-tight">{product.name}</p>
+                  <div>
+                    <p className="text-sm font-medium max-w-[200px] leading-tight">{product.name}</p>
+                    {product.product_type && (
+                      <span className="text-xs text-muted-foreground capitalize">{product.product_type}</span>
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell>
                   <span className="font-mono text-xs text-muted-foreground">{product.dropi_product_id}</span>
@@ -107,7 +130,20 @@ export function ProductsManager({ products }: { products: Product[] }) {
                   <span className="font-mono text-sm">{formatCOP(product.base_price)}</span>
                 </TableCell>
                 <TableCell>
-                  <span className="font-mono text-sm font-medium">{formatCOP(product.sale_price)}</span>
+                  {hasCampaignPricing ? (
+                    <div className="flex flex-col gap-0.5">
+                      <span className={`font-mono text-sm font-medium ${product.promo_active ? "text-green-600" : "text-muted-foreground line-through"}`}>
+                        {formatCOP(product.price_promo!)}
+                      </span>
+                      {product.promo_active && (
+                        <span className="font-mono text-xs text-muted-foreground line-through">
+                          {formatCOP(product.price_regular!)}
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="font-mono text-sm font-medium">{formatCOP(product.sale_price)}</span>
+                  )}
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-col">
@@ -123,9 +159,16 @@ export function ProductsManager({ products }: { products: Product[] }) {
                   )}
                 </TableCell>
                 <TableCell>
-                  <Badge variant={product.active ? "default" : "secondary"} className="text-xs">
-                    {product.active ? "Activo" : "Inactivo"}
-                  </Badge>
+                  <div className="flex flex-col gap-1">
+                    <Badge variant={product.active ? "default" : "secondary"} className="text-xs">
+                      {product.active ? "Activo" : "Inactivo"}
+                    </Badge>
+                    {hasCampaignPricing && (
+                      <Badge variant={product.promo_active ? "default" : "outline"} className="text-xs">
+                        {product.promo_active ? "Promo ON" : "Promo OFF"}
+                      </Badge>
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-1">
@@ -138,6 +181,17 @@ export function ProductsManager({ products }: { products: Product[] }) {
                     >
                       <Pencil className="h-3.5 w-3.5" />
                     </Button>
+                    {hasCampaignPricing && (
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className={`h-7 w-7 ${product.promo_active ? "text-green-600" : ""}`}
+                        onClick={() => togglePromo(product)}
+                        title={product.promo_active ? "Desactivar precio promo" : "Activar precio promo"}
+                      >
+                        <Tag className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
                     <Button
                       size="icon"
                       variant="ghost"
