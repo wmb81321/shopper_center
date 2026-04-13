@@ -445,11 +445,11 @@ function ScriptCard({
                 rows={Math.max(6, displayText.split("\n").length + 1)}
                 className="text-[13px] leading-relaxed font-mono resize-none"
               />
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <button onClick={resetDraft} className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2">
                   Restablecer original
                 </button>
-                <div className="flex gap-2">
+                <div className="flex gap-2 ml-auto">
                   <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setEditing(false)}>Cancelar</Button>
                   <Button size="sm" className="h-7 text-xs" onClick={saveEdit}>Guardar</Button>
                 </div>
@@ -527,20 +527,19 @@ export function PlaybookVentas({
     <div className="p-4 md:p-6 space-y-4 md:space-y-6">
 
       {/* Page header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold">Playbook de Ventas</h1>
           <p className="text-sm text-muted-foreground">Scripts de WhatsApp para el funnel Mundial 2026 ⚽</p>
         </div>
 
         {/* Product selector */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <span className="text-xs text-muted-foreground shrink-0">Producto:</span>
           <Select value={selectedId} onValueChange={handleProductChange}>
-            <SelectTrigger className="w-[220px] h-8 text-sm">
-              {/* Render name directly — base-ui SelectValue doesn't resolve ItemText */}
+            <SelectTrigger className="flex-1 sm:w-[200px] sm:flex-none h-8 text-sm">
               <span className="truncate text-left">
-                {selected?.name ?? "Selecciona un producto..."}
+                {selected?.name ?? "Selecciona..."}
               </span>
             </SelectTrigger>
             <SelectContent>
@@ -555,11 +554,6 @@ export function PlaybookVentas({
           {selected && displayPrice != null && (
             <Badge variant="secondary" className="text-xs shrink-0">
               {copStr(displayPrice)}
-              {selected.promo_active && selected.price_promo && selected.price_regular && (
-                <span className="line-through text-muted-foreground ml-1.5">
-                  {copStr(selected.price_regular)}
-                </span>
-              )}
             </Badge>
           )}
         </div>
@@ -592,12 +586,12 @@ export function PlaybookVentas({
 
           {/* Stage nav */}
           <div className="space-y-1.5">
-            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-1 mb-2">
+            <p className="hidden md:block text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-1 mb-2">
               Etapas del funnel
             </p>
 
             {/* Mobile: horizontal pills */}
-            <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:hidden sticky top-0 z-10 bg-background py-1">
+            <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:hidden bg-background py-1">
               {funnelStages.map((stage) => {
                 const isActive = activeStage === stage.id;
                 return (
