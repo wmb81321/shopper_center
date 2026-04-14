@@ -25,6 +25,7 @@ import {
   Target,
   Gift,
   BookOpen,
+  FolderOpen,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
@@ -34,6 +35,7 @@ const navItems = [
   { href: "/orders", label: "Órdenes", icon: ShoppingBag },
   { href: "/conversations", label: "Conversaciones", icon: MessageSquare },
   { href: "/products", label: "Productos", icon: Package },
+  { href: "/categories", label: "Categorías", icon: FolderOpen },
   { href: "/ads", label: "Anuncios", icon: Megaphone },
   { href: "/segments", label: "Segmentación", icon: Target },
   { href: "/benefits", label: "Beneficios", icon: Gift },

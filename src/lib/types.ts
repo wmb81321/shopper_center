@@ -205,6 +205,18 @@ export interface Benefit {
   updated_at: string;
 }
 
+export interface Category {
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  image_url: string | null;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface CampaignProduct {
   id: string;
   name: string;
