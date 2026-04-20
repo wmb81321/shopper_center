@@ -26,7 +26,7 @@ const SC = {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface Script { label: string; text: string; }
+interface Script { label: string; text: string; productTag?: "camiseta" | "body" | "combo"; }
 interface Stage {
   id: string; emoji: string; title: string; subtitle: string;
   color: string; goal: string; scripts: Script[];
@@ -80,36 +80,48 @@ function resolveTemplate(tpl: string, tokens: Record<string, string>): string {
     .replace(/\n{3,}/g, "\n\n");
 }
 
+function getProductTag(product: Product | null): "camiseta" | "body" | "combo" | null {
+  if (!product) return null;
+  const name = product.name.toLowerCase();
+  if (name.includes("camiseta")) return "camiseta";
+  if (name.includes("body")) return "body";
+  if (name.includes("combo")) return "combo";
+  return null;
+}
+
 // ─── Script data ──────────────────────────────────────────────────────────────
 
 const L = (...rows: string[]) => rows.join("\n");
 
 const funnelStages: Stage[] = [
   {
-    id: "bienvenida", emoji: "👋", title: "Bienvenida",
-    subtitle: "0-2 min despues del mensaje", color: SC.whatsapp,
-    goal: "Enganchar + identificar que producto quiere",
+    id: "saludo", emoji: "👋", title: "Saludo",
+    subtitle: "Menos de 5 min", color: SC.whatsapp,
+    goal: "Responder rapido y descubrir que producto quiere",
     scripts: [
       {
-        label: "Respuesta inmediata (menos de 5 min)",
+        label: "Saludo inmediato (universal)",
         text: L(
-          "¡Hola! 😊 Gracias por escribirnos. Sí tenemos disponible. ¿Para quién es? Dime la talla y te confirmo disponibilidad ahora mismo. 👇"
+          "¡Hola! 😊 Gracias por escribirnos. Sí tenemos disponible 🇨🇴 ¿Para quién es? Dime la talla y te confirmo de una vez."
         ),
       },
       {
-        label: "Si preguntan por Camiseta ($89.900)",
+        label: "👕 Respuesta — Camiseta",
+        productTag: "camiseta",
         text: L(
-          "👕 Camiseta Selección Colombia — $89.900 con envío incluido. Tenemos tallas S, M, L y XL. ¿Cuál necesitas? Te la apartamos de una vez."
+          "👕 Camiseta Selección Colombia — $89.900 con envío incluido a todo Colombia. Tallas S, M, L y XL. ¿Cuál necesitas?"
         ),
       },
       {
-        label: "Si preguntan por Body ($79.900)",
+        label: "👙 Respuesta — Body",
+        productTag: "body",
         text: L(
-          "👙 Body Selección Colombia — $79.900 con envío incluido. Tallas S, M y L. ¿Cuál te queda? Te lo apartamos ya."
+          "👙 Body Selección Colombia — $79.900 con envío incluido a todo Colombia. Tallas S, M y L. ¿Cuál te queda?"
         ),
       },
       {
-        label: "Si preguntan por Combos",
+        label: "🔥 Respuesta — Combos",
+        productTag: "combo",
         text: L(
           "🔥 Tenemos 3 combos con descuento especial:",
           "💑 Pareja (Camiseta + Body): $159.900",
@@ -121,211 +133,108 @@ const funnelStages: Stage[] = [
     ],
   },
   {
-    id: "interes", emoji: "🎯", title: "Captura de Interes",
-    subtitle: "Despues de que responden", color: SC.blue,
-    goal: "Confirmar producto + generar urgencia",
+    id: "upsell", emoji: "🔥", title: "Upsell",
+    subtitle: "Despues de confirmar talla", color: SC.amber,
+    goal: "Subir el ticket ofreciendo combo antes del cierre",
     scripts: [
       {
-        label: "Cuando dicen 'si me interesa'",
+        label: "👕 Upsell — 2 Camisetas (Parceros)",
+        productTag: "camiseta",
         text: L(
-          "Dale! Te cuento por que este {{product}} es diferente:",
-          "",
-          "🏆 Es la camiseta/body oficial del Mundial 2026",
-          "🇨🇴 Colombia juega el 17 de junio vs Uzbekistan",
-          "📦 Te llega en 5 dias — justo a tiempo",
-          "💰 Precio promo: solo {{precio}} (se acaba pronto)",
-          "🚚 Envio GRATIS + pagas cuando te llega",
-          "",
-          "Ya hemos enviado mas de {{pedidos_semana}} pedidos esta semana 📦",
-          "",
-          "Lo pedimos? Te toma menos de 1 minuto 👇"
+          "Perfecto, te la aparto. Oye, ¿es solo para ti o necesitas otra? Te pregunto porque si llevas 2 camisetas te las dejo en $169.900 las dos en vez de $179.800. Te ahorras $10.000 y el envío es el mismo. 🤝"
         ),
       },
       {
-        label: "Cuando preguntan por tallas",
+        label: "👕 Upsell — Camiseta + Body (Pareja)",
+        productTag: "camiseta",
         text: L(
-          "Buena pregunta!",
-          "",
-          "👕 {{product}}: Tenemos {{tallas}}",
-          "",
-          "Cual es tu talla? Asi te confirmo disponibilidad al toque 🔥"
+          "Listo. ¿Tu pareja también quiere? Tenemos el body de la Selección para mujer. Si llevas camiseta + body te los dejo en $159.900 los dos en vez de $169.800. Quedan increíbles juntos. 💑"
+        ),
+      },
+      {
+        label: "👙 Upsell — 2 Bodys (Amigas)",
+        productTag: "body",
+        text: L(
+          "Listo, te lo aparto. ¿Y tu amiga ya tiene el suyo? Si llevas 2 bodys te los dejo en $149.900 los dos en vez de $159.800. Ahorras y les llegan juntos. 👯‍♀️"
         ),
       },
     ],
   },
   {
-    id: "cierre", emoji: "🔥", title: "Cierre — Pedir Datos",
-    subtitle: "El momento clave", color: SC.amber,
-    goal: "Obtener los 5 datos para crear la orden",
+    id: "cierre", emoji: "📦", title: "Cierre",
+    subtitle: "Cuando confirma", color: SC.green,
+    goal: "Obtener los datos para el envio",
     scripts: [
       {
-        label: "⭐ Cierre directo (EL MAS IMPORTANTE)",
+        label: "⭐ Solicitud de datos (EL MAS IMPORTANTE)",
         text: L(
-          "Perfecto, te la aparto. 📦 Para enviarte necesito: nombre completo, ciudad, dirección y un celular de contacto. Te llega en 3-5 días hábiles."
-        ),
-      },
-      {
-        label: "Cierre para combos",
-        text: L(
-          "Excelente! El {{combo}} es la mejor opcion 💪",
-          "",
-          "Para armarte el pedido necesito:",
-          "",
-          "📝 Nombre completo:",
-          "🏙️ Ciudad:",
-          "🏠 Direccion completa:",
-          "📱 Numero de contacto:",
-          "📧 Correo:",
-          "👕 Talla camiseta (si aplica):",
-          "",
-          "Recuerda: pagas cuando te llega. Sin riesgo 💯"
-        ),
-      },
-      {
-        label: "Cierre asumido",
-        text: L(
-          "Ya te lo tengo apartado 🔒",
-          "",
-          "Solo pasame tus datos para generar la guia de envio:",
-          "",
-          "Nombre:",
-          "Ciudad:",
-          "Direccion:",
-          "Telefono:",
-          "Correo:",
-          "",
-          "Lo despacho hoy y te llega en 5 dias 📦🇨🇴"
-        ),
-      },
-    ],
-  },
-  {
-    id: "objeciones", emoji: "🛡️", title: "Manejo de Objeciones",
-    subtitle: "Cuando dudan o no responden", color: SC.purple,
-    goal: "Resolver dudas y recuperar el interes",
-    scripts: [
-      {
-        label: '"Es muy caro" / "No tengo plata"',
-        text: L(
-          "Entiendo 💛 Pero mira esto:",
-          "",
-          "La camiseta original en tienda esta a $350.000+",
-          "Nosotros la tenemos a {{precio}} — menos de la mitad 🤯",
-          "",
-          "Y lo mejor: pagas CUANDO TE LLEGA. No tienes que pagar nada ahora.",
-          "",
-          "Es precio de Mundial, y cuando empiece el torneo suben seguro. Te la aparto?"
-        ),
-      },
-      {
-        label: '"Es original?" / "Es confiable?"',
-        text: L(
-          "Claro! Te cuento:",
-          "",
-          "✅ Producto con tecnologia AEROREADY",
-          "✅ Escudo tejido de la Seleccion",
-          "✅ Envio con guia de rastreo (Servientrega/Coordinadora)",
-          "✅ Pagas contraentrega — si no te gusta, no pagas",
-          "✅ Ya llevamos {{pedidos_semana}} pedidos enviados esta semana",
-          "",
-          "0 riesgo para ti. Lo pedimos? 🇨🇴"
-        ),
-      },
-      {
-        label: '"Dejame pensarlo" / "Luego te escribo"',
-        text: L(
-          "Dale! Sin presion 🙌",
-          "",
-          "Solo te aviso que quedan pocas unidades al precio promo de {{precio}} y cuando se acaben vuelven al precio regular de {{precio_regular}}.",
-          "",
-          "Si quieres, te lo aparto por las proximas 2 horas sin compromiso. Te parece? 🔒"
-        ),
-      },
-      {
-        label: '"Hay descuento?" / "Me haces rebaja?"',
-        text: L(
-          "El precio ya es de oferta (el regular es $119.900/$99.900). Pero te incluimos el envío gratis, que normalmente cuesta $12.000-$15.000. Es lo mejor que hay ahorita."
-        ),
-      },
-      {
-        label: '"Puedo ver fotos?" / "Como es?"',
-        text: L(
-          "Claro! Mira 👇",
-          "",
-          "[📸 Enviar fotos del producto aqui]",
-          "",
-          "🔥 Es espectacular en persona — las fotos no le hacen justicia",
-          "",
-          "Te gusta? Te lo pedimos? 🇨🇴"
+          "📦 Para enviarte necesito: nombre completo, ciudad, dirección exacta y celular de contacto. Te llega en 3-5 días hábiles. ¿Pago por Nequi, Daviplata o contraentrega?"
         ),
       },
     ],
   },
   {
     id: "followup", emoji: "📲", title: "Follow-Up",
-    subtitle: "Si no responden", color: SC.red,
+    subtitle: "2 horas sin respuesta", color: SC.red,
     goal: "Recuperar leads frios sin ser invasivo",
     scripts: [
       {
-        label: "Follow-up #1 — 2 horas despues",
+        label: "👕 Follow-up — Camiseta",
+        productTag: "camiseta",
         text: L(
-          "¡Hola! Vi que estabas interesado/a en la camiseta de Colombia 🇨🇴 ¿Todavía la quieres? Te la tengo apartada pero se están agotando las tallas."
+          "Hola, ¿todavía quieres la camiseta? Te la tengo apartada pero se están agotando las tallas. 🇨🇴"
         ),
       },
       {
-        label: "Follow-up #2 — Al dia siguiente",
+        label: "👙 Follow-up — Body",
+        productTag: "body",
         text: L(
-          "Hola de nuevo! 🇨🇴",
-          "",
-          "Solo queria avisarte que el {{product}} se esta agotando — hoy ya van {{pedidos_semana}} pedidos.",
-          "",
-          "Si todavia lo quieres, me avisas y te lo aparto al precio promo 💛",
-          "",
-          "Recuerda: envio gratis + pagas cuando te llega ✅"
-        ),
-      },
-      {
-        label: "Follow-up #3 — 2 dias despues (ultimo)",
-        text: L(
-          "👋 Ultimo aviso:",
-          "",
-          "El precio promo de {{precio}} del {{product}} se acaba esta semana.",
-          "",
-          "Despues vuelve a {{precio_regular}}.",
-          "",
-          'Si lo quieres, solo dime "va" y te lo aparto en 1 minuto 🔥'
+          "Hola, ¿todavía quieres el body? Te lo tengo apartado pero se están agotando las tallas. 🇨🇴"
         ),
       },
     ],
   },
   {
-    id: "confirmacion", emoji: "✅", title: "Confirmacion de Orden",
-    subtitle: "Cuando dan los datos", color: SC.green,
-    goal: "Confirmar, generar confianza y upsell",
+    id: "objeciones", emoji: "🛡️", title: "Objeciones",
+    subtitle: "Cuando dudan", color: SC.purple,
+    goal: "Resolver dudas y recuperar el interes",
     scripts: [
       {
-        label: "Confirmacion de pedido",
+        label: '"Me haces rebaja?" / "Está muy caro"',
         text: L(
-          "🎉 PEDIDO CONFIRMADO!",
-          "",
-          "Aqui tu resumen:",
-          "",
-          "📦 Producto: {{product}}",
-          "👕 Talla: {{talla_elegida}}",
-          "💰 Total: {{precio}} (envio GRATIS)",
-          "💳 Pago: Contraentrega",
-          "📍 Envio a: {{ciudad}}",
-          "🕐 Entrega estimada: 5 dias habiles",
-          "",
-          "Te enviare tu numero de guia apenas se despache 📲",
-          "",
-          "Gracias por confiar en nosotros! 🇨🇴⚽"
+          "Ese ya es precio de oferta. El precio real es $119.900/$99.900 y el envío normalmente vale $12.000-$15.000. Todo eso ya está incluido. Es lo mejor que vas a encontrar."
         ),
       },
       {
-        label: "Upsell despues de confirmar",
+        label: '"Voy a pensarlo"',
         text: L(
-          "Por cierto, si quieres otra para tu [parce/amiga/pareja], tenemos combos desde $149.900 las dos. Te ahorras plata vs comprarlas por separado. ¿Te interesa?"
+          "Tranqui, pero te aviso que las tallas [M y L] se están agotando. Si después la quieres y no hay tu talla, no te la puedo garantizar. ¿Te la aparto y te doy hasta mañana para confirmar?"
+        ),
+      },
+      {
+        label: '"¿Es confiable?" / "¿Es original?"',
+        text: L(
+          "Claro! Te cuento:",
+          "",
+          "✅ Producto con tecnologia AEROREADY",
+          "✅ Escudo tejido de la Seleccion",
+          "✅ Envio con guia de rastreo (Servientrega/Coordinadora)",
+          "✅ Pagas cuando te llega — si no te gusta, no pagas",
+          "",
+          "0 riesgo para ti. Lo pedimos? 🇨🇴"
+        ),
+      },
+    ],
+  },
+  {
+    id: "postventa", emoji: "✅", title: "Post-Venta",
+    subtitle: "Cuando confirma el pedido", color: SC.green,
+    goal: "Fidelizar y generar referidos",
+    scripts: [
+      {
+        label: "Confirmacion + referido",
+        text: L(
+          "¡Listo, pedido confirmado! 🎉 Te envío la guía de seguimiento apenas la tenga. Si tienes alguien que también quiera la de Colombia, pásale mi número. Si compra de tu parte te hago descuento en la próxima. 🇨🇴"
         ),
       },
     ],
@@ -466,7 +375,7 @@ export function PlaybookVentas({
   products: Product[];
   initialProductId: string;
 }) {
-  const [activeStage, setActiveStage] = useState("bienvenida");
+  const [activeStage, setActiveStage] = useState("saludo");
   const [activeTab, setActiveTab] = useState("funnel");
   const [selectedId, setSelectedId] = useState<string>(initialProductId);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
@@ -491,7 +400,12 @@ export function PlaybookVentas({
     [products, selectedId]
   );
   const tokens = useMemo(() => buildTokens(selected, products), [selected, products]);
+  const productTag = useMemo(() => getProductTag(selected), [selected]);
   const current = funnelStages.find((s) => s.id === activeStage)!;
+  const visibleScripts = useMemo(
+    () => current.scripts.filter((s) => !s.productTag || !productTag || s.productTag === productTag),
+    [current, productTag]
+  );
 
   const displayPrice = selected
     ? selected.promo_active && selected.price_promo ? selected.price_promo : selected.sale_price
@@ -646,16 +560,22 @@ export function PlaybookVentas({
 
             {/* Scripts */}
             <div className="space-y-2">
-              {current.scripts.map((script, i) => (
-                <ScriptCard
-                  key={`${current.id}-${i}`}
-                  script={script}
-                  tokens={tokens}
-                  draftKey={`${current.id}:${i}`}
-                  drafts={drafts}
-                  onDraftChange={handleDraftChange}
-                />
-              ))}
+              {visibleScripts.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-6">
+                  No hay scripts para este producto en esta etapa.
+                </p>
+              ) : (
+                visibleScripts.map((script, i) => (
+                  <ScriptCard
+                    key={`${current.id}-${script.label}`}
+                    script={script}
+                    tokens={tokens}
+                    draftKey={`${current.id}:${i}`}
+                    drafts={drafts}
+                    onDraftChange={handleDraftChange}
+                  />
+                ))
+              )}
             </div>
           </div>
         </div>
