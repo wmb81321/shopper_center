@@ -91,30 +91,31 @@ const funnelStages: Stage[] = [
     goal: "Enganchar + identificar que producto quiere",
     scripts: [
       {
-        label: "Respuesta inicial",
+        label: "Respuesta inmediata (menos de 5 min)",
         text: L(
-          "Hola! 👋 Gracias por escribirnos 🇨🇴",
-          "",
-          "Que bueno que te interesa! Tenemos disponibilidad todavia pero se estan agotando rapido 🔥",
-          "",
-          "Me cuentas cual te llamo la atencion?",
-          "{{menu_productos}}"
+          "¡Hola! 😊 Gracias por escribirnos. Sí tenemos disponible. ¿Para quién es? Dime la talla y te confirmo disponibilidad ahora mismo. 👇"
         ),
       },
       {
-        label: "Si llegan con un producto especifico",
+        label: "Si preguntan por Camiseta ($89.900)",
         text: L(
-          "Hola! 👋 Excelente eleccion 🔥",
-          "",
-          "Ese {{product}} esta volando, quedan pocas unidades.",
-          "",
-          "Te cuento rapido:",
-          "✅ Precio de Mundial: {{precio}} (antes {{precio_regular}})",
-          "✅ Envio GRATIS a toda Colombia",
-          "✅ Pago contraentrega (pagas cuando te llega)",
-          "✅ Llega en 5 dias",
-          "",
-          "Te lo aparto? Solo necesito unos daticos 📝"
+          "👕 Camiseta Selección Colombia — $89.900 con envío incluido. Tenemos tallas S, M, L y XL. ¿Cuál necesitas? Te la apartamos de una vez."
+        ),
+      },
+      {
+        label: "Si preguntan por Body ($79.900)",
+        text: L(
+          "👙 Body Selección Colombia — $79.900 con envío incluido. Tallas S, M y L. ¿Cuál te queda? Te lo apartamos ya."
+        ),
+      },
+      {
+        label: "Si preguntan por Combos",
+        text: L(
+          "🔥 Tenemos 3 combos con descuento especial:",
+          "💑 Pareja (Camiseta + Body): $159.900",
+          "🤝 Parceros (2 Camisetas): $169.900",
+          "👯‍♀️ Amigas (2 Bodys): $149.900",
+          "Todos con envío incluido. ¿Cuál te interesa?"
         ),
       },
     ],
@@ -160,17 +161,7 @@ const funnelStages: Stage[] = [
       {
         label: "⭐ Cierre directo (EL MAS IMPORTANTE)",
         text: L(
-          "Perfecto! Te lo aparto ya mismo ✅",
-          "",
-          "Para enviartelo solo necesito estos datos (copiame y llena):",
-          "",
-          "📝 Nombre completo:",
-          "🏙️ Ciudad:",
-          "🏠 Direccion completa:",
-          "📱 Numero de contacto:",
-          "📧 Correo electronico:",
-          "",
-          "Apenas me los pases, queda tu pedido confirmado y te llega en 5 dias 🚀"
+          "Perfecto, te la aparto. 📦 Para enviarte necesito: nombre completo, ciudad, dirección y un celular de contacto. Te llega en 3-5 días hábiles."
         ),
       },
       {
@@ -253,13 +244,7 @@ const funnelStages: Stage[] = [
       {
         label: '"Hay descuento?" / "Me haces rebaja?"',
         text: L(
-          "El precio ya tiene descuento de Mundial 🏆",
-          "",
-          "Mira: el precio regular es {{precio_regular}} y lo tenemos a {{precio}} — eso ya es un ahorro de {{ahorro}} 🔥",
-          "",
-          "Y ademas el envio es GRATIS (eso normalmente vale $15.000-$20.000).",
-          "",
-          "Es la mejor oferta que vas a encontrar. Te lo aparto? 📦"
+          "El precio ya es de oferta (el regular es $119.900/$99.900). Pero te incluimos el envío gratis, que normalmente cuesta $12.000-$15.000. Es lo mejor que hay ahorita."
         ),
       },
       {
@@ -284,11 +269,7 @@ const funnelStages: Stage[] = [
       {
         label: "Follow-up #1 — 2 horas despues",
         text: L(
-          "Hey! 👋 Vi que estabas interesado/a en el {{product}}.",
-          "",
-          "Todavia lo tengo disponible al precio promo de {{precio}} 🔥",
-          "",
-          "Te lo aparto? Solo necesito tus datos y listo 📦"
+          "¡Hola! Vi que estabas interesado/a en la camiseta de Colombia 🇨🇴 ¿Todavía la quieres? Te la tengo apartada pero se están agotando las tallas."
         ),
       },
       {
@@ -344,14 +325,7 @@ const funnelStages: Stage[] = [
       {
         label: "Upsell despues de confirmar",
         text: L(
-          "Ya quedo tu pedido! 🎉",
-          "",
-          "Oye, y como ya te hacemos el envio... no quieres agregar otro para alguien?",
-          "",
-          "🔥 Combo Parceros: agrega otra camiseta por solo $80.000 mas",
-          "🔥 Combo Pareja: agrega un body por solo $70.000 mas",
-          "",
-          "Asi aprovechas el envio gratis 📦 Te animas?"
+          "Por cierto, si quieres otra para tu [parce/amiga/pareja], tenemos combos desde $149.900 las dos. Te ahorras plata vs comprarlas por separado. ¿Te interesa?"
         ),
       },
     ],
